@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="baxter_tools" type="enable_robot.py" name="enable_robot" args="-e"/>
+    <node pkg="baxter_traj_streamer" type="traj_interpolator_as" name="traj_interpolator_as"/>
+    <node pkg="baxter_cartesian_moves" type="baxter_cart_move_as" name="baxter_cart_move_as"/>
+    <node pkg="baxter_gripper" type="baxter_compliant_gripper" name="baxter_compliant_gripper"/>
+    <include file="$(find cwru_baxter_sim)/kinect_xform.launch"/>
+</launch>

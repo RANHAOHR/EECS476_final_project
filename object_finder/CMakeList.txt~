@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(object_finder)
+
+find_package(catkin_simple REQUIRED)
+
+#uncomment next line to use OpenCV library
+#find_package(OpenCV REQUIRED)
+
+
+#uncomment the following 4 lines to use the Eigen library
+find_package(cmake_modules REQUIRED)
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+add_definitions(${EIGEN_DEFINITIONS})
+catkin_simple()
+
+find_package(PCL 1.7 REQUIRED)
+include_directories(${PCL_INCLUDE_DIRS})
+# example boost usage
+find_package(Boost REQUIRED COMPONENTS system thread)
+
+
+cs_add_library(pcl_utils src/pcl_utils.cpp) 
+
+# Executables: uncomment the following and edit arguments to compile new nodes
+# may add more of these lines for more nodes from the same package
+cs_add_executable(object_finder src/object_finder_as.cpp src/object_finder.cpp)
+
+target_link_libraries(find_plane_coke_can_merry pcl_utils)
+
+cs_install()
+cs_export()

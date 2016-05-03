@@ -1,4 +1,0 @@
-#ifndef BLOCK_FINDER_BLOCK_FINDER_H
-#define BLOCK_FINDER_BLOCK_FINDER_H
-
-#endif

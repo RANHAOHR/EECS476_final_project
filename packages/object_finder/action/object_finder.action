@@ -1,0 +1,19 @@
+#object_finder action message
+#pass in an object code
+#object_finder will find the centroid of the coke can and yield it wrt torso frame
+#returns codes regarding outcome
+
+int32 COKE_CAN_UPRIGHT=1
+
+#goal:
+int32 object_code
+---
+#result definition
+#  response codes...
+int32 OBJECT_FOUND=0
+int32 OBJECT_CODE_NOT_RECOGNIZED=1
+int32 found_object_code
+geometry_msgs::Pose object_pose
+---
+#feedback: optional; 
+int32 fdbk

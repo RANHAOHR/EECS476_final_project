@@ -14,7 +14,7 @@ rosrun baxter_tools enable_robot.py -e
 
 ####for tfs:
 
-roslaunch /home/ros_ws/src/EECS476_final_project/test_can_finding.launch
+roslaunch /home/src/EECS476_final_project/test_can_finding.launch
 
 
 ##for finding coke can

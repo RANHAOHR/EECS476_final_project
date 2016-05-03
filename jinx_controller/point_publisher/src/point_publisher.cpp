@@ -1,4 +1,5 @@
 #include <pub_des_state/pub_des_state.h>
+#include <traj_builder/traj_builder.h>
 #include <iostream>
 using namespace std;
 

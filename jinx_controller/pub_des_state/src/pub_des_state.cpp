@@ -1,4 +1,5 @@
 #include <pub_des_state/pub_des_state.h>
+#include <traj_builder/traj_builder.h>
 //ExampleRosClass::ExampleRosClass(ros::NodeHandle* nodehandle):nh_(*nodehandle)
 
 DesStatePublisher::DesStatePublisher(ros::NodeHandle& nh) : nh_(nh) {
@@ -6,6 +7,7 @@ DesStatePublisher::DesStatePublisher(ros::NodeHandle& nh) : nh_(nh) {
     //as_.start(); //start the server running
     //configure the trajectory builder: 
     //dt_ = dt; //send desired-state messages at fixed rate, e.g. 0.02 sec = 50Hz
+    TrajBuilder trajBuilder_;
     trajBuilder_.set_dt(dt);
     //dynamic parameters: should be tuned for target system
     accel_max_ = accel_max;
@@ -84,7 +86,7 @@ bool DesStatePublisher::flushPathQueueCB(std_srvs::TriggerRequest& request, std_
     return true;
 }
 
-bool DesStatePublisher::appendPathQueueCB(mobot_pub_des_state::pathRequest& request, mobot_pub_des_state::pathResponse& response) {
+bool DesStatePublisher::appendPathQueueCB(pub_des_state::pathRequest& request, pub_des_state::pathResponse& response) {
     int npts = request.path.poses.size();
     ROS_INFO("appending path queue with %d points", npts);
     for (int i = 0; i < npts; i++)

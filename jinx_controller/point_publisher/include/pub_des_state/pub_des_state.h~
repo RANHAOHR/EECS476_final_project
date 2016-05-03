@@ -85,7 +85,7 @@ private:
     bool estopServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response);
     bool clearEstopServiceCallback(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response);
     bool flushPathQueueCB(std_srvs::TriggerRequest& request, std_srvs::TriggerResponse& response);
-    bool appendPathQueueCB(pub_des_state::pathRequest& request,pub_des_state::pathResponse& response);
+    bool appendPathQueueCB(mobot_pub_des_state::pathRequest& request,mobot_pub_des_state::pathResponse& response);
 
 public:
     DesStatePublisher(ros::NodeHandle& nh);//constructor

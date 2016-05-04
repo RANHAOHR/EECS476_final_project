@@ -94,7 +94,7 @@ void ObjectGrabber::vertical_cylinder_power_grasp(geometry_msgs::PoseStamped obj
     Eigen::Vector3d object_origin;
     object_origin = object_affine.translation();
     grasp_origin_ = object_origin; //grasp origin is same as object origin...
-    grasp_origin_(2) = gripper_table_z_;//except elevate the gripper for table clearance
+    //grasp_origin_(2) = gripper_table_z_;//except elevate the gripper for table clearance
     a_gripper_grasp_.translation() = grasp_origin_;
     
     //to slide sideways to approach, compute a pre-grasp approach pose;
@@ -113,6 +113,10 @@ void ObjectGrabber::vertical_cylinder_power_grasp(geometry_msgs::PoseStamped obj
     int planner_rtn_code;
     des_gripper_approach_pose.header.frame_id = "torso";
     des_gripper_approach_pose.pose = g_arm_motion_commander_ptr->transformEigenAffine3dToPose(a_gripper_approach_);
+    des_gripper_approach_pose.pose.orientation.x = 0.166;
+    des_gripper_approach_pose.pose.orientation.y = 0.648;
+    des_gripper_approach_pose.pose.orientation.z = 0.702;
+    des_gripper_approach_pose.pose.orientation.w = 0.109;
     planner_rtn_code = g_arm_motion_commander_ptr->rt_arm_plan_path_current_to_goal_pose(des_gripper_approach_pose);
     
     //try to move here:
@@ -121,6 +125,10 @@ void ObjectGrabber::vertical_cylinder_power_grasp(geometry_msgs::PoseStamped obj
     //slide to can:
     des_gripper_grasp_pose.header.frame_id = "torso";
     des_gripper_grasp_pose.pose = g_arm_motion_commander_ptr->transformEigenAffine3dToPose(a_gripper_grasp_);
+    des_gripper_grasp_pose.pose.orientation.x = 0.166;
+    des_gripper_grasp_pose.pose.orientation.y = 0.648;
+    des_gripper_grasp_pose.pose.orientation.z = 0.702;
+    des_gripper_grasp_pose.pose.orientation.w = 0.109;
     planner_rtn_code = g_arm_motion_commander_ptr->rt_arm_plan_path_current_to_goal_pose(des_gripper_grasp_pose);
     g_arm_motion_commander_ptr->rt_arm_execute_planned_path();
     
@@ -132,6 +140,10 @@ void ObjectGrabber::vertical_cylinder_power_grasp(geometry_msgs::PoseStamped obj
     //depart vertically:
     des_gripper_depart_pose.header.frame_id = "torso";
     des_gripper_depart_pose.pose = g_arm_motion_commander_ptr->transformEigenAffine3dToPose(a_gripper_depart_);
+    des_gripper_depart_pose.pose.orientation.x = 0.166;
+    des_gripper_depart_pose.pose.orientation.y = 0.648;
+    des_gripper_depart_pose.pose.orientation.z = 0.702;
+    des_gripper_depart_pose.pose.orientation.w = 0.109;
     planner_rtn_code = g_arm_motion_commander_ptr->rt_arm_plan_path_current_to_goal_pose(des_gripper_depart_pose);
     g_arm_motion_commander_ptr->rt_arm_execute_planned_path();
 } 
@@ -150,6 +162,10 @@ void ObjectGrabber::executeCB(const actionlib::SimpleActionServer<object_grabber
      grab_result_.return_code = object_grabber::object_grabberResult::OBJECT_ACQUIRED; 
      object_grabber_as_.setSucceeded(grab_result_);
      break;
+    case object_grabber::object_grabberGoal::PREPOSE:
+        g_arm_motion_commander_ptr->plan_move_to_pre_pose();
+        g_arm_motion_commander_ptr->rt_arm_execute_planned_path();
+    break;
    default:
              ROS_WARN("this object ID is not implemented");
              grab_result_.return_code = object_grabber::object_grabberResult::FAILED_OBJECT_UNKNOWN; 

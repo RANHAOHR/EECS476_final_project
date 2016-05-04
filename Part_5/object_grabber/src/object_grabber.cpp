@@ -69,7 +69,7 @@ ObjectGrabber::ObjectGrabber(ros::NodeHandle* nodehandle): nh_(*nodehandle),
     
     gripper_open.data= false;
     gripper_close.data=true;
-    gripper_publisher = nh_.advertise<std_msgs::Bool>("gripper_open_close",1,true);
+    gripper_publisher = nh_.advertise<std_msgs::Bool>("gripper_cmd",1,true);
 
     object_grabber_as_.start(); //start the server running
 }
@@ -162,10 +162,10 @@ void ObjectGrabber::executeCB(const actionlib::SimpleActionServer<object_grabber
      grab_result_.return_code = object_grabber::object_grabberResult::OBJECT_ACQUIRED; 
      object_grabber_as_.setSucceeded(grab_result_);
      break;
-    case object_grabber::object_grabberGoal::PREPOSE:
-        g_arm_motion_commander_ptr->plan_move_to_pre_pose();
-        g_arm_motion_commander_ptr->rt_arm_execute_planned_path();
-    break;
+    // case object_grabber::object_grabberGoal::PREPOSE:
+    //     g_arm_motion_commander_ptr->plan_move_to_pre_pose();
+    //     g_arm_motion_commander_ptr->rt_arm_execute_planned_path();
+    // break;
    default:
              ROS_WARN("this object ID is not implemented");
              grab_result_.return_code = object_grabber::object_grabberResult::FAILED_OBJECT_UNKNOWN; 

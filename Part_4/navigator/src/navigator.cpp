@@ -57,8 +57,8 @@ Navigator::Navigator() :
 int Navigator::navigate_home() { 
     std::vector<geometry_msgs::PoseStamped> points;
     mobot_pub_des_state::path path_srv;
-    points.push_back(trajBuilder_.xyPsi2PoseStamped(4.0,0.0,3.14159265358979323846264338));
-    points.push_back(trajBuilder_.xyPsi2PoseStamped(4.0,0.0,1.57));
+    points.push_back(trajBuilder_.xyPsi2PoseStamped(2.0,0.0,3.14159265358979323846264338));
+    points.push_back(trajBuilder_.xyPsi2PoseStamped(2.0,0.0,-1.57));
     points.push_back(trajBuilder_.xyPsi2PoseStamped(0.0,0.0,0.0));
     path_srv.request.path.poses = points;
     append_client_.call(path_srv);
@@ -67,7 +67,7 @@ int Navigator::navigate_home() {
     mobot_pub_des_state::emptyQueue emptyQueueMsg;
     empty_client_.call(emptyQueueMsg);
     while (!emptyQueueMsg.response.empty) {
-        if (t_ > 25) {
+        if (t_ > 30) {
             return navigator::navigatorResult::FAILED_CANNOT_REACH_DES_POSE;
         }
         t_ += 1.0;
@@ -80,7 +80,7 @@ int Navigator::navigate_home() {
 int Navigator::navigate_to_table() { 
     std::vector<geometry_msgs::PoseStamped> points;
     mobot_pub_des_state::path path_srv;
-    points.push_back(trajBuilder_.xyPsi2PoseStamped(5.0,0.0,0.0));
+    points.push_back(trajBuilder_.xyPsi2PoseStamped(3.0,0.0,0.0));
     path_srv.request.path.poses = points;
     append_client_.call(path_srv);
     t_ = 0;
@@ -166,7 +166,7 @@ void Navigator::executeCB(const actionlib::SimpleActionServer<navigator::navigat
 }
 
 int main(int argc, char** argv) {
-    ros::init(argc, argv, "navigation_action_server"); // name this node 
+    ros::init(argc, argv, "navigator"); // name this node 
 
     ROS_INFO("instantiating the navigation action server: ");
 

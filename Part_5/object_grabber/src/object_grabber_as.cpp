@@ -10,7 +10,7 @@
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include<geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PoseStamped.h>
 #include <object_grabber/object_grabberAction.h>
 #include <std_msgs/Bool.h>
 
@@ -22,7 +22,7 @@ ArmMotionCommander *g_arm_motion_commander_ptr; // a pointer to an ArmMotionComm
 #include "object_grabber.cpp" // and another class def here
 
 int main(int argc, char** argv) {
-    ros::init(argc, argv, "object_grabber_action_server_node"); // name this node 
+    ros::init(argc, argv, "object_grabber_as"); // name this node 
     ros::NodeHandle nh; //standard ros node handle   
     ObjectGrabber object_grabber_as(&nh); // create an instance of the class "ObjectGrabber", containing an action server
     //arm motion commander is convenient means to talk to cartesian motion action server

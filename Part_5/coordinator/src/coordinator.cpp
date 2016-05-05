@@ -110,15 +110,15 @@ int main(int argc, char** argv) {
     
     //do the same with the "navigator" action server
      // attempt to connect to the server:
-    ROS_INFO("waiting for server: ");
-    server_exists = false;
-    while ((!server_exists)&&(ros::ok())) {
-        server_exists = navigator_ac.waitForServer(ros::Duration(0.5)); // 
-        ros::spinOnce();
-        ros::Duration(0.5).sleep();
-        ROS_INFO("retrying...");
-    }
-    ROS_INFO("connected to navigator action server"); // if here, then we connected to the server; 
+    // ROS_INFO("waiting for server: ");
+    // server_exists = false;
+    // while ((!server_exists)&&(ros::ok())) {
+    //     server_exists = navigator_ac.waitForServer(ros::Duration(0.5)); // 
+    //     ros::spinOnce();
+    //     ros::Duration(0.5).sleep();
+    //     ROS_INFO("retrying...");
+    // }
+    // ROS_INFO("connected to navigator action server"); // if here, then we connected to the server; 
 
     //specifications for what we are seeking:
     object_finder::objectFinderGoal object_finder_goal;   
@@ -136,25 +136,35 @@ int main(int argc, char** argv) {
         ros::spinOnce();    
     }
      else{
-                 g_get_coke_trigger=false; // reset the trigger
-
-
-    //  IF HERE, START THE FETCH BEHAVIOR!!
-    
-    ROS_INFO("sending navigation goal: TABLE");
-    navigation_goal.location_code=navigator::navigatorGoal::TABLE; //send robot to TABLE
-        navigator_ac.sendGoal(navigation_goal,&navigatorDoneCb); // we could also name additional callback functions here, if desired
-        finished_before_timeout = navigator_ac.waitForResult(ros::Duration(30.0));
+        g_get_coke_trigger=false; // reset the trigger
+        object_finder_goal.object_id=object_finder::objectFinderGoal::COKE_CAN_UPRIGHT; //specify object of interest
+        object_finder_goal.known_surface_ht=true; //we'll say we know the table height
+        object_finder_goal.surface_ht = 0.05;  // and specify the height, relative to torso; TUNE THIS
+        object_finder_ac.sendGoal(object_finder_goal,&objectFinderDoneCb); 
+        //decide how long we will wait
+        finished_before_timeout = object_finder_ac.waitForResult(ros::Duration(15.0));
         //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
         if (!finished_before_timeout) {
-            ROS_WARN("giving up waiting on result ");
-            return 1;
+            ROS_WARN("giving up punching the kinect in the face");
+            return 1; // halt with failure
         }
-      //SHOULD do error checking here before proceeding...
-        if (g_navigator_rtn_code!= navigator::navigatorResult::DESIRED_POSE_ACHIEVED) {
-            ROS_WARN("COULD NOT REACH TABLE; QUITTING");
-            return 1;
-        }
+
+    // IF HERE, START THE FETCH BEHAVIOR!!
+    
+    // ROS_INFO("sending navigation goal: TABLE");
+    // navigation_goal.location_code=navigator::navigatorGoal::TABLE; //send robot to TABLE
+    //     navigator_ac.sendGoal(navigation_goal,&navigatorDoneCb); // we could also name additional callback functions here, if desired
+    //     finished_before_timeout = navigator_ac.waitForResult(ros::Duration(20));
+    //     //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
+    //     if (!finished_before_timeout) {
+    //         ROS_WARN("giving up waiting on result ");
+    //         return 1;
+    //     }
+    //  // SHOULD do error checking here before proceeding...
+    //     if (g_navigator_rtn_code!= navigator::navigatorResult::DESIRED_POSE_ACHIEVED) {
+    //         ROS_WARN("COULD NOT REACH TABLE; QUITTING");
+    //         return 1;
+    //     }
                 
                 
     //assume we have reached the table; look for the Coke can:
@@ -162,10 +172,11 @@ int main(int argc, char** argv) {
     object_finder_goal.object_id=object_finder::objectFinderGoal::COKE_CAN_UPRIGHT; //specify object of interest
     object_finder_goal.known_surface_ht=true; //we'll say we know the table height
     object_finder_goal.surface_ht = 0.05;  // and specify the height, relative to torso; TUNE THIS
+    ros::Duration(5.0).sleep();
     //try to find the object:
         object_finder_ac.sendGoal(object_finder_goal,&objectFinderDoneCb); 
         //decide how long we will wait
-        finished_before_timeout = object_finder_ac.waitForResult(ros::Duration(5.0));
+        finished_before_timeout = object_finder_ac.waitForResult(ros::Duration(15.0));
         //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
         if (!finished_before_timeout) {
             ROS_WARN("giving up waiting on result ");
@@ -182,7 +193,7 @@ int main(int argc, char** argv) {
     ROS_INFO("sending goal to grab object: ");
         object_grabber_ac.sendGoal(object_grabber_goal,&objectGrabberDoneCb); 
         //decide how long to wait...
-        finished_before_timeout = object_grabber_ac.waitForResult(ros::Duration(40.0));
+        finished_before_timeout = object_grabber_ac.waitForResult(ros::Duration(45.0));
 
         if (!finished_before_timeout) {
             ROS_WARN("giving up waiting on result; quitting ");
@@ -194,20 +205,21 @@ int main(int argc, char** argv) {
         }
         
         //if here, belief is that we are holding the Coke; return home            
-    ROS_INFO("sending navigation goal: HOME");
-    navigation_goal.location_code=navigator::navigatorGoal::HOME; //send robot to TABLE
-        navigator_ac.sendGoal(navigation_goal,&navigatorDoneCb); // we could also name additional callback functions here, if desired
-        finished_before_timeout = navigator_ac.waitForResult(ros::Duration(30.0));
-        //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
-        if (!finished_before_timeout) {
-            ROS_WARN("giving up waiting on result ");
-            return 1;
-        }
-      //SHOULD do error checking here before proceeding...
-        if (g_navigator_rtn_code!= navigator::navigatorResult::DESIRED_POSE_ACHIEVED) {
-            ROS_WARN("COULD NOT REACH TABLE; QUITTING");
-            return 1;
-        }
+    // ROS_INFO("sending navigation goal: HOME");
+    // navigation_goal.location_code=navigator::navigatorGoal::HOME; //send robot to TABLE
+    //     navigator_ac.sendGoal(navigation_goal,&navigatorDoneCb); // we could also name additional callback functions here, if desired
+    //     finished_before_timeout = navigator_ac.waitForResult(ros::Duration(45.0));
+    //     //bool finished_before_timeout = action_client.waitForResult(); // wait forever...
+    //     if (!finished_before_timeout) {
+    //         ROS_WARN("giving up waiting on result ");
+    //         return 1;
+    //     }
+
+    //   //SHOULD do error checking here before proceeding...
+    //     if (g_navigator_rtn_code!= navigator::navigatorResult::DESIRED_POSE_ACHIEVED) {
+    //         ROS_WARN("COULD NOT REACH HOME; QUITTING");
+    //         return 1;
+    //     }
   ROS_INFO("Done fetching! Run me again?");    
              }
     }

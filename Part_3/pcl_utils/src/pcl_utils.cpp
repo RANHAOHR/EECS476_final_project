@@ -1176,7 +1176,7 @@ void PclUtils::seek_rough_table_merry( pcl::PointCloud<pcl::PointXYZRGB>::Ptr in
     double  pts_2_y = -0.23511;
     double  pts_2_z = 1.03458;
 
-    double  pts_3_x = 0.1395804;   /* /actual origin in our table space */
+    double  pts_3_x = -0.0395804;   /* /actual origin in our table space */
     double  pts_3_y = -0.0460593;
     double  pts_3_z = 1.0051;
 
@@ -1332,7 +1332,7 @@ void PclUtils::seek_coke_can_cloud( pcl::PointCloud<pcl::PointXYZRGB>::Ptr input
         if ( height_diff < 0.05 && height_diff > 0 )                            /* if the point has the height of the can, so the point will be on the can height plane */
         {
             dist    = sqrt( dx * dx + dy * dy + dz * dz );
-            des_dis = sqrt( 0.3 * 0.3 + can_height * can_height );
+            des_dis = sqrt( 0.23 * 0.23 + can_height * can_height );
             /* dist_diff = fabs(des_dis - dist); */
             if ( dist < des_dis )                                           /* in certain range */
             {
@@ -1359,9 +1359,9 @@ void PclUtils::seek_coke_can_cloud( pcl::PointCloud<pcl::PointXYZRGB>::Ptr input
      */
     pcl::PointCloud<pcl::PointXYZ>::Ptr can_xyz( new pcl::PointCloud<pcl::PointXYZ>);
     from_RGB_to_XYZ( coke_can_pts, can_xyz );
-    can_top_centroid_ = compute_centroid( can_xyz ); /* see http://eigen.tuxfamily.org/dox/AsciiQuickReference.txt */
+    Eigen::Vector3f centroid_ = compute_centroid( can_xyz ); /* see http://eigen.tuxfamily.org/dox/AsciiQuickReference.txt */
 
-    cout << "can top centroid: " << can_top_centroid_.transpose() << endl;
+    cout << "can top centroid: " << centroid_.transpose() << endl;
 }
 
 
@@ -1406,7 +1406,44 @@ bool PclUtils::is_coke_can( pcl::PointCloud<pcl::PointXYZRGB>::Ptr input_cloud_p
 
 Eigen::Vector3f PclUtils::find_can_bottom( pcl::PointCloud<pcl::PointXYZRGB>::Ptr table_cloud_ptr )
 {
-    return(can_top_centroid_);
+    double  norm_table  = sqrt( table_normal[0] * table_normal[0] + table_normal[1] * table_normal[1] + table_normal[2] * table_normal[2] );
+    double  norm_coke   = 0.0;
+    double  dot_product = 0.0;
+    double  dist_diff   = 0.0;
+    double  dist        = 0.0;
+    double  diff        = 0.0;
+
+    double  dx  = 0.0;
+    double  dy  = 0.0;
+    double  dz  = 0.0;
+
+    Eigen::Vector3f can_bottom;
+
+    int input_size = table_cloud_ptr->points.size();
+    for ( int i = 0; i < input_size; ++i )
+    {
+        dx      = centroid_[0] - table_cloud_ptr->points[i].x;
+        dy      = centroid_[1] - table_cloud_ptr->points[i].y;
+        dz      = centroid_[2] - table_cloud_ptr->points[i].z;
+        dist        = sqrt( dx * dx + dy * dy + dz * dz );
+        dist_diff   = dist - can_height;
+        if ( dist_diff > 0 && dist_diff < 0.001 )       /* /first want to find a point which is can_height away with the top */
+        {
+            dot_product = dx * table_normal[0] + dy * table_normal[1] + dz * table_normal[2];
+            norm_coke   = sqrt( dx * dx + dy * dy + dz * dz );
+            diff        = fabs( dot_product - (norm_table * norm_coke) );
+
+            if ( diff >= 0 && diff <= 0.2 )         /* //see if the point is right in the bottom of the can */
+            {
+                //ROS_INFO( "find can bottom !!" );
+                can_bottom[0]   = table_cloud_ptr->points[i].x;
+                can_bottom[1]   = table_cloud_ptr->points[i].y;
+                can_bottom[2]   = table_cloud_ptr->points[i].z;
+                break;
+            }
+        }
+    }
+    return(can_bottom);
 }
 
 

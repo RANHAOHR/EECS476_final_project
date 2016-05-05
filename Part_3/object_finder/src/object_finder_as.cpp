@@ -116,6 +116,9 @@ ObjectFinder::ObjectFinder() :
 
 //specialized function: DUMMY...JUST RETURN A HARD-CODED POSE; FIX THIS
 bool ObjectFinder::find_upright_coke_can(float surface_height,geometry_msgs::PoseStamped &object_pose) {
+    if (pclUtils_.got_kinect_cloud())
+    {
+       
 	pclUtils_.get_kinect_points(pclKinect_clr_ptr);
     //will publish  pointClouds as ROS-compatible messages; create publishers; note topics for rviz viewing        
     pcl::toROSMsg(*pclKinect_clr_ptr, ros_cloud); //convert from PCL cloud to ROS message this way
@@ -165,8 +168,8 @@ bool ObjectFinder::find_upright_coke_can(float surface_height,geometry_msgs::Pos
         can_top = pclUtils_.find_can_bottom(final_table_cloud_ptr); //find bottom in table
         pcl::toROSMsg(*can_pts_cloud_ptr, canPts);
         Can.publish(canPts);
-        can_top[0] = can_top[0] + 0.73; /////have to correct the tf!!!!
-        can_top[1] = can_top[1] - 0.15;
+        can_top[0] = can_top[0]; /////have to correct the tf!!!!
+        can_top[1] = can_top[1] + 0.3;
         can_top[2] = can_top[2] - 0.9;
 
         ROS_INFO("The x y z of the can top is: (%f, %f, %f)", can_top[0], can_top[1], can_top[2]);
@@ -195,7 +198,10 @@ bool ObjectFinder::find_upright_coke_can(float surface_height,geometry_msgs::Pos
     // object_pose.pose.orientation.z = 0;
     // object_pose.pose.orientation.w = 1;   
     // return found_object;
-    
+        }else{
+        ROS_WARN("NO Kinect callback !");
+    }
+    pclUtils_.reset_got_kinect_cloud();
 }
 
 //executeCB implementation: this is a member method that will get registered with the action server
@@ -206,7 +212,7 @@ bool ObjectFinder::find_upright_coke_can(float surface_height,geometry_msgs::Pos
 // defined in our package, "example_action_server", in the subdirectory "action", called "demo.action"
 // The name "demo" is prepended to other message types created automatically during compilation.
 // e.g.,  "demoAction" is auto-generated from (our) base name "demo" and generic name "Action"
-void ObjectFinder::executeCB(const actionlib::SimpleActionServer<object_finder::objectFinderAction>::GoalConstPtr& goal) {
+void ObjectFinder::executeCB(const actionlib::SimpleActionServer<object_finder::objectFinderAction>::GoalConstPtr& goal) { 
     int object_id = goal->object_id;
     geometry_msgs::PoseStamped object_pose;
     bool known_surface_ht = goal->known_surface_ht;

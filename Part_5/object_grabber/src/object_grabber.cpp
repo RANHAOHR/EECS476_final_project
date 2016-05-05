@@ -69,7 +69,7 @@ ObjectGrabber::ObjectGrabber(ros::NodeHandle* nodehandle): nh_(*nodehandle),
     
     gripper_open.data= false;
     gripper_close.data=true;
-    gripper_publisher = nh_.advertise<std_msgs::Bool>("gripper_cmd",1,true);
+    gripper_publisher = nh_.advertise<std_msgs::Bool>("/gripper_open_close",1,true);
 
     object_grabber_as_.start(); //start the server running
 }
@@ -107,8 +107,11 @@ void ObjectGrabber::vertical_cylinder_power_grasp(geometry_msgs::PoseStamped obj
     a_gripper_depart_.translation() = depart_origin_;
     
     //open the gripper:
+    ROS_INFO("openning...");
     gripper_publisher.publish(gripper_open);
-    
+    ROS_INFO("done?");
+    ros::Duration(5.0).sleep();
+
     //start w/ a jnt-space move from current pose to approach pose:
     int planner_rtn_code;
     des_gripper_approach_pose.header.frame_id = "torso";
@@ -134,8 +137,9 @@ void ObjectGrabber::vertical_cylinder_power_grasp(geometry_msgs::PoseStamped obj
     
     //close the gripper:
     gripper_publisher.publish(gripper_close);
+
     //wait for gripper to close:
-    ros::Duration(2.0).sleep();
+    ros::Duration(5.0).sleep();
     
     //depart vertically:
     des_gripper_depart_pose.header.frame_id = "torso";
